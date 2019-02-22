@@ -1,85 +1,63 @@
-// Import and configure the Firebase SDK
-// These scripts are made available when the app is served or deployed on Firebase Hosting
-// If you do not serve/host your project using Firebase Hosting see https://firebase.google.com/docs/web/setup
-
-// importScripts('https://www.gstatic.com/firebasejs/5.0.2/firebase.js');
-importScripts(
-    'https://www.gstatic.com/firebasejs/5.0.4/firebase-app.js',
-    'https://www.gstatic.com/firebasejs/5.0.4/firebase-messaging.js');
-
-const messagingSenderId = new URL(location).searchParams.get('messagingSenderId');
-firebase.initializeApp({
-    'messagingSenderId': messagingSenderId
+$(document).ready(function() {
+  var _that = this;
+  // Block#: lyh;P2VBG=x`c/eSZnkx
+  com.fc.JavaScriptDistLib.FireBase.onRegTokenRefresh(function(token) {
+    // Block#: zh92hC!yG5v*z494o@-/
+    console.log(token);
+    if(_that.debugService && _that.debugService.active) {
+      _that.debugService.traces.push(token);
+      _that.debugService.printLog();
+    }
+  });
+  // Block#: OA#Dk(zf?;SIyz/N`+Vz
+  function on_clearButton_click(e) {
+    try {
+      // Block#: KszBT`Ln[5y~TZg)*8Aw
+      com.fc.JavaScriptDistLib.Label.setProperty["Text"]("title", ''); // Block#: w]-1$pT]N!u37:g=sx]f
+      com.fc.JavaScriptDistLib.Label.setProperty["Text"]("body", '');
+      e.stopPropagation();
+    } catch(e) {
+      com.fc.JavaScriptDistLib.handleExceptionNative(e);
+    }
+  };
+  $('[obj-name="clearButton"]').on('click', on_clearButton_click);
+  // Block#: .=cFGa4TsLVob0rae_n?
+  com.fc.JavaScriptDistLib.FireBase.onMessageReceived(function(sender, message) {
+    // Block#: IHP~h2XRl.m5/9W7[{5m
+    com.fc.JavaScriptDistLib.Label.setProperty["Text"]("body", message);
+  });
+  // Block#: hUR@EdE/@-^{h(dRHW#)
+  function on_tokenButton_click(e) {
+    try {
+      // Block#: (:dmTsF4r9W8-3OaVXn^
+      console.log(com.fc.JavaScriptDistLib.FireBase.getRefreshedToken());
+      if(_that.debugService && _that.debugService.active) {
+        _that.debugService.traces.push(com.fc.JavaScriptDistLib.FireBase.getRefreshedToken());
+        _that.debugService.printLog();
+      }
+      e.stopPropagation();
+    } catch(e) {
+      com.fc.JavaScriptDistLib.handleExceptionNative(e);
+    }
+  };
+  $('[obj-name="tokenButton"]').on('click', on_tokenButton_click);
+  // Block#: ,VfiWAT1_{MS7ihc,P.q
+  function on_deviceIdButton_click(e) {
+    try {
+      // Block#: K:CO72gCH#AOJnBAt@V3
+      console.log(com.fc.JavaScriptDistLib.FireBase.getUniqueDeviceId());
+      if(_that.debugService && _that.debugService.active) {
+        _that.debugService.traces.push(com.fc.JavaScriptDistLib.FireBase.getUniqueDeviceId());
+        _that.debugService.printLog();
+      }
+      e.stopPropagation();
+    } catch(e) {
+      com.fc.JavaScriptDistLib.handleExceptionNative(e);
+    }
+  };
+  $('[obj-name="deviceIdButton"]').on('click', on_deviceIdButton_click);
+  com.fc.JavaScriptDistLib.FireBase.configure('{"api-key":{"text":"AIzaSyAMq-eBDh0b7QWp8O6b77-zHVBaW-lmDGg"},"project-id":{"text":"snapfirebasetest"},"client-id":{"text":"1012080014692"},"project-number":{"text":"1012080014692"},"public-vapid-key":{"text":"AAAA66SrdWQ:APA91bHN8_NV2-VGAFtFememx7nGKr8FPgPpCvnENswaiYwg_ijcqIwA2KbYTZXZXI1jlaajsfL5hR2NHk4a03f4pDbmD8z161Sj2ZdSu1q-hXtLO5LG4z0egsFpt8GkC1f-yHgq4eg8"},"storage-bucket":{"text":""},"mobilesdk-app-id":{"text":""},"ios-app-id":{"text":""},"ios-bundle-id":{"text":""}}');
+  $('[obj-name="MainScreen"]').show();
 });
-
-var messaging = firebase.messaging();
-
-messaging.setBackgroundMessageHandler( payload => {
-    console.log('[firebase-messaging-sw.js] Received background message ', payload);
-
-    // Customize notification here
-    let notificationTitle = 'Background Message';
-    if (payload.data && payload.data.title) notificationTitle =  payload.data.title;
-    let body = '';
-    if (payload.data && payload.data.body) body =  payload.data.body;
-    let notificationOptions = {
-        body: body,
-        icon: '/img/logo_small.png'
-    };
-
-    return self.registration.showNotification(notificationTitle, notificationOptions);
-});
-
-// When the user clicks a notification focus the window if it exists or open
-// a new one otherwise.
-self.addEventListener('notificationclick', event => {
-    console.log('[firebase-messaging-sw.js] notificationclick ', event);
-    const clickedNotification = event.notification;
-    clickedNotification.close();
-
-    const urlToOpen = self.location.href.substring(0, self.location.href.indexOf('firebase-messaging-sw.js'));
-    console.log('urlToOpen', urlToOpen);
-
-    const promiseChain = clients.matchAll(
-        {
-            type: 'window',
-            includeUncontrolled: true
-        })
-        .then((windowClients) => {
-            let matchingClient = null;
-
-            for (let i = 0; i < windowClients.length; i++) {
-                const windowClient = windowClients[i];
-                console.log('windowClient.url', windowClient.url);
-                if (windowClient.url.includes(urlToOpen)) {
-                    matchingClient = windowClient;
-                    // Todo:
-                    // The following break is commented on purpose
-                    // The reason is that we need to check how often is the case
-                    // where more than one creator window are open
-                    // break;
-                }
-            }
-
-            if (matchingClient) {
-                // message to the client
-                let messageData = new Object({
-                    data: {
-                        title: clickedNotification.title,
-                        body: clickedNotification.body,
-                        icon: clickedNotification.icon,
-                    },
-                    type: 'web-push-message'
-                });
-                matchingClient.postMessage(messageData);
-                return matchingClient.focus();
-            } else {
-                return clients.openWindow(urlToOpen);
-            }
-        });
-    event.waitUntil(promiseChain);
-});
-
-
-
-
+// Generated by snapp
+// 245859-813836-900876-757243
